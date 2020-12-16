@@ -39,6 +39,8 @@ public interface ApplicationListener<E extends ApplicationEvent> extends EventLi
 	/**
 	 * Handle an application event.
 	 * @param event the event to respond to
+	 *
+	 * 监听器的回调函数统一入口
 	 */
 	void onApplicationEvent(E event);
 

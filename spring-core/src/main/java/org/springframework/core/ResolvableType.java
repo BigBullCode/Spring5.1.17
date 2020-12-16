@@ -185,6 +185,7 @@ public class ResolvableType implements Serializable {
 	 * @since 4.2
 	 */
 	private ResolvableType(@Nullable Class<?> clazz) {
+		//将class对象存到了全局变量resolved。并且type=this.resolved
 		this.resolved = (clazz != null ? clazz : Object.class);
 		this.type = this.resolved;
 		this.typeProvider = null;
@@ -994,6 +995,7 @@ public class ResolvableType implements Serializable {
 	 * @see #forClassWithGenerics(Class, Class...)
 	 */
 	public static ResolvableType forClass(@Nullable Class<?> clazz) {
+		//这里是直接new了一个ResolvableType对象，参数是ApplicationStartingEvent的class对象
 		return new ResolvableType(clazz);
 	}
 
@@ -1097,6 +1099,7 @@ public class ResolvableType implements Serializable {
 	 */
 	public static ResolvableType forInstance(Object instance) {
 		Assert.notNull(instance, "Instance must not be null");
+		//判断是否实现了ResolvableTypeProvider接口，如果实现了直接调用getResolvableType()放法得到ResolvableType 对象。
 		if (instance instanceof ResolvableTypeProvider) {
 			ResolvableType type = ((ResolvableTypeProvider) instance).getResolvableType();
 			if (type != null) {

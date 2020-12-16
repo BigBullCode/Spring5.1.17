@@ -168,15 +168,21 @@ public abstract class AbstractApplicationEventMulticaster
 	 * @param eventType the event type
 	 * @return a Collection of ApplicationListeners
 	 * @see org.springframework.context.ApplicationListener
+	 *
+	 * 该方法中会得到支持该事件的Listener，并使用ConcurrentHashMap构建缓存
+	 * ListenerCacheKey对象当key，该对象存放了事件类型即eventType和SpringAppliction的class对象即sourceType
+	 *ListenerRetriever对象当value，通过该对象的applicationListeners得到Listener集合
 	 */
 	protected Collection<ApplicationListener<?>> getApplicationListeners(
 			ApplicationEvent event, ResolvableType eventType) {
-
+		//source即SpringApplication对象
 		Object source = event.getSource();
 		Class<?> sourceType = (source != null ? source.getClass() : null);
+		//在ConcurrentHashMap中该对象用作缓存key
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
+		//在ConcurrentHashMap中该对象用作缓存value
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
 		if (retriever != null) {
 			return retriever.getApplicationListeners();
@@ -186,14 +192,18 @@ public abstract class AbstractApplicationEventMulticaster
 				(ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
 						(sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
 			// Fully synchronized building and caching of a ListenerRetriever
+			// 同步构建ListenerRetriever和缓存
 			synchronized (this.retrievalMutex) {
 				retriever = this.retrieverCache.get(cacheKey);
 				if (retriever != null) {
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
+				//这一步就会检索出支持该事件的Listener并添加到ListenerRetriever对象的Set集合中，
+				// 添加之前会先清空
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
+				//放入缓存
 				this.retrieverCache.put(cacheKey, retriever);
 				return listeners;
 			}

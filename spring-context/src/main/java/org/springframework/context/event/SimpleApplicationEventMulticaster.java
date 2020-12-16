@@ -127,11 +127,25 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		multicastEvent(event, resolveDefaultEventType(event));
 	}
 
+	/**
+	 * 真正发布事件的方法
+	 * @param event the event to multicast
+	 * @param eventType the type of event (can be null)
+	 */
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
+		//这里是将event又封装了一下，封装成了ResolvableType。该类提供方法可以得到父类，接口，以及通用参数。四种方法的到该对象：
+		//forField(Field)
+		//forMethodParameter(Method, int)
+		//forMethodReturnType(Method)
+		//forClass(Class)
+		//都是该类的静态方法。
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
+		//获取线程池
 		Executor executor = getTaskExecutor();
+		//父类getApplicationListeners(event, type)方法会检索得到支持该事件的listener
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
+			//如果有线程池，则用线程池多线程执行
 			if (executor != null) {
 				executor.execute(() -> invokeListener(listener, event));
 			}
@@ -150,6 +164,8 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 * @param listener the ApplicationListener to invoke
 	 * @param event the current event to propagate
 	 * @since 4.1
+	 *
+	 * 用给定的时间调用给定的监听器
 	 */
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
 		ErrorHandler errorHandler = getErrorHandler();
@@ -166,9 +182,16 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		}
 	}
 
+	/**
+	 * 终于执行了onApplication方法
+	 * @param listener
+	 * @param event
+	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			//得到listener之后执行onApplication方法
+			//不同的listener不同的实现回调函数执行，以Springboot的LoggingApplicationListener为例
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {
@@ -176,6 +199,8 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 			if (msg == null || matchesClassCastMessage(msg, event.getClass())) {
 				// Possibly a lambda-defined listener which we could not resolve the generic event type for
 				// -> let's suppress the exception and just log a debug message.
+				// 可能是lambda定义的侦听器，无法解析泛型事件类型
+				// -> 取消异常，只记录一条调试消息。
 				Log logger = LogFactory.getLog(getClass());
 				if (logger.isTraceEnabled()) {
 					logger.trace("Non-matching event type for listener: " + listener, ex);

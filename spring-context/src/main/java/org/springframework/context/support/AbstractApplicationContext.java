@@ -379,6 +379,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * or a payload object to be turned into a {@link PayloadApplicationEvent})
 	 * @param eventType the resolved event type, if known
 	 * @since 4.2
+	 *
+	 * 根据不同的事件，发布给不同的监听器
+	 * Spring boot启动的最后发布一个运行中的事件ApplicationReadyEvent
 	 */
 	protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
 		Assert.notNull(event, "Event must not be null");
