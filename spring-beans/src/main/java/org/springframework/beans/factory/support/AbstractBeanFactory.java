@@ -196,6 +196,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public Object getBean(String name) throws BeansException {
+		//此方法为获取bean的实际方法
 		return doGetBean(name, null, null, false);
 	}
 
@@ -240,12 +241,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
+		//提取对应的beanName。由于当bean对象实现FactoryBean接口之后就会变成&beanName，同时如果存在别名，需要转义
 		String beanName = transformedBeanName(name);
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		//提前检查单例缓存中是否有手动注册的单例对象。解决循环依赖
 		Object sharedInstance = getSingleton(beanName);
-		if (sharedInstance != null && args == null) {
+
+		if (sharedInstance != null && args == null) { //如果bean的单例对象找到了，且没有创建bean实例时要使用到的参数
 			if (logger.isTraceEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.trace("Returning eagerly cached instance of singleton bean '" + beanName +
@@ -357,6 +361,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						Object scopedInstance = scope.get(beanName, () -> {
 							beforePrototypeCreation(beanName);
 							try {
+								//创建bean
 								return createBean(beanName, mbd, args);
 							}
 							finally {

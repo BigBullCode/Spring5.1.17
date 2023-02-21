@@ -521,40 +521,50 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @throws IllegalStateException
 	 */
 	@Override
-	public void refresh() throws BeansException, IllegalStateException {
+	public void  refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
-			// Prepare this context for refreshing.准备刷新
+			//加载配置文件需要加载到容器，因此需要先加载容器。
+
+			// Prepare this context for refreshing.准备刷新容器
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.通知子类刷新内部bean工厂
+			// Tell the subclass to refresh the internal bean factory.通知子类刷新内部bean工厂，刷新BeanFactory。解析xml获取所有的beanDefinition对象
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.准备bean工厂以便在此上下文中使用
+			//beanFactory的准备工作，对各种属性进行填充。设置BeanDefinition的各种属性值
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.允许上下文子类中对bean工厂进行后处理
+				//子类覆盖方法做额外的处理，此处我们自己一般不做任何扩展，但是可以查看web中的代码，是有具体实现的
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.在bean创建之前调用BeanFactoryPostProcessors后置处理方法
+				//调用各种BeanFactory的处理器BeanFactoryPostProcessors
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.注册BeanPostProcessor
+				//注册BeanPostProcessor。是来进行Bean的实例化，这里只是注册功能，真正调用的是其getBean方法
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.注册DelegatingMessageSource
+				//为上下文初始化message资源，即不同的语言的消息体，国际化处理
 				initMessageSource();
 
 				// Initialize event multicaster for this context.注册multicaster
+				//初始化事件监听多路广播器
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.创建内置的Servlet容器
+				//留给子类来初始化其它的bean
 				onRefresh();
 
 				// Check for listener beans and register them.注册Listener
+				//在所有注册的bean中查找listener bean，注册到消息广播器中。
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.完成BeanFactory初始化，初始化剩余单例bean
+				// Instantiate all remaining (non-lazy-init) singletons.完成BeanFactory初始化，初始化剩余非懒加载的单例bean
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.发布对应事件
@@ -604,14 +614,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
-		// Initialize any placeholder property sources in the context environment.
+		// Initialize any placeholder property sources in the context environment.初始化容器资源
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
-		// see ConfigurablePropertyResolver#setRequiredProperties
+		// see ConfigurablePropertyResolver#setRequiredProperties  获取环境
 		getEnvironment().validateRequiredProperties();
 
-		// Store pre-refresh ApplicationListeners...
+		// Store pre-refresh ApplicationListeners...  下面获取监听器及事件集合对象。
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}
