@@ -19,8 +19,12 @@ package org.springframework.beans.factory.config;
 import org.springframework.beans.BeansException;
 
 /**
+ *
+ * 个人理解：bean工厂的后置处理器，可以更形象的成为BeanFactory的增强器，可对BeanDefinition
+ * 做增强处理或自定义处理，如需扩展自定义处理BeanDefinition，实现该类即可处理
  * Allows for custom modification of an application context's bean definitions,
  * adapting the bean property values of the context's underlying bean factory.
+ * 允许自定义修改应用程序上下文的bean定义,适应上下文bean属性值的潜在bean工厂。
  *
  * <p>Application contexts can auto-detect BeanFactoryPostProcessor beans in
  * their bean definitions and apply them before any other beans get created.

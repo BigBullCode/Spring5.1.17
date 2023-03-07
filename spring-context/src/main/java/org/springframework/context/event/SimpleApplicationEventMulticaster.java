@@ -128,7 +128,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	}
 
 	/**
-	 * 真正发布事件的方法
+	 * 真正发布事件的方法。
 	 * @param event the event to multicast
 	 * @param eventType the type of event (can be null)
 	 */
@@ -183,9 +183,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	}
 
 	/**
-	 * 终于执行了onApplication方法
-	 * @param listener
-	 * @param event
+	 * 终于执行了onApplication方法。
+	 * @param listener xxx
+	 * @param event xxx
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {

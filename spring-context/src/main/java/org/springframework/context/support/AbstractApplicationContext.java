@@ -516,9 +516,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Spring boot启动过程中刷新容器
-	 * @throws BeansException
-	 * @throws IllegalStateException
+	 * Spring boot启动过程中刷新容器。
+	 * @throws BeansException  xxx
+	 * @throws IllegalStateException xxx
 	 */
 	@Override
 	public void  refresh() throws BeansException, IllegalStateException {
@@ -526,6 +526,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			//加载配置文件需要加载到容器，因此需要先加载容器。
 
 			// Prepare this context for refreshing.准备刷新容器
+			/**
+			 * 1、设置容器启动时间
+			 *        * 2、设置活跃状态为true
+			 *        * 3、设置关闭状态为false
+			 *        * 4、获取Environment对象，并加载当前系统的属性值到Environment对象中
+			 *        * 5、准备监听器和时间的集合对象，默认为空的集合
+			 */
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.通知子类刷新内部bean工厂，刷新BeanFactory。解析xml获取所有的beanDefinition对象
@@ -540,7 +547,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				//子类覆盖方法做额外的处理，此处我们自己一般不做任何扩展，但是可以查看web中的代码，是有具体实现的
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.在bean创建之前调用BeanFactoryPostProcessors后置处理方法
+				// Invoke factory processors registered as beans in the context.
+				// 在bean创建之前调用BeanFactoryPostProcessors后置处理方法
 				//调用各种BeanFactory的处理器BeanFactoryPostProcessors
 				invokeBeanFactoryPostProcessors(beanFactory);
 
@@ -601,10 +609,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
+		// 设置容器启动的时间
 		this.startupDate = System.currentTimeMillis();
+		// 容器的关闭标志位
 		this.closed.set(false);
+		// 容器的激活标志位
 		this.active.set(true);
-
+		// 记录日志
 		if (logger.isDebugEnabled()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Refreshing " + this);
@@ -615,19 +626,25 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.初始化容器资源
+		// 预留接口，便于子类功能扩展
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties  获取环境
+		// 1、检查是否存在环境变量如果存在直接用,不存在重更新获取
+		// 2、创建并获取环境对象、验证需要的属性文件是否符合
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...  下面获取监听器及事件集合对象。
+		// 判断刷新前的应用程序监听器集合是否为空，如果为空，则将监听器添加到此集合中
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}
 		else {
 			// Reset local application listeners to pre-refresh state.
+			// 如果不等于空，则清空集合元素对象
 			this.applicationListeners.clear();
+			// 创建刷新前的监听事件集合
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
 		}
 
@@ -824,6 +841,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 模板方法的扩展引用，可以通过继承该抽象类重写该方法以扩展功能
+	 * 实际应用：Springboot通过该扩展方法，进行了webServer如tomcat的加载
 	 * Template method which can be overridden to add context-specific refresh work.
 	 * Called on initialization of special beans, before instantiation of singletons.
 	 * <p>This implementation is empty.

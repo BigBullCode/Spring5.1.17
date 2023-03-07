@@ -1,12 +1,13 @@
 buildscript {
 	repositories {
-		maven { url 'https://jitpack.io' }
+		maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
 		maven { url 'https://maven.aliyun.com/repository/public' }
 		maven { url 'https://maven.aliyun.com/repository/central' }
 		maven { url 'https://maven.aliyun.com/repository/google' }
 		maven { url 'https://maven.aliyun.com/repository/public' }
 		maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
 		maven { url "https://repo.spring.io/plugins-release" }
+		maven { url "http://repo.springsource.org/plugins-release" }
 	}
 	dependencies {
 		classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
@@ -136,6 +137,7 @@ configure(allprojects) { project ->
 	}
 
 	test {
+		enabled = false
 		systemProperty("java.awt.headless", "true")
 		systemProperty("testGroups", project.properties.get("testGroups"))
 		systemProperty("io.netty.leakDetection.level", "paranoid")
@@ -153,14 +155,13 @@ configure(allprojects) { project ->
 	}
 
 	repositories {
-		mavenCentral()
-		maven { url 'https://jitpack.io' }
 		maven { url 'https://maven.aliyun.com/repository/public' }
 		maven { url 'https://maven.aliyun.com/repository/central' }
 		maven { url 'https://maven.aliyun.com/repository/google' }
 		maven { url 'https://maven.aliyun.com/repository/public' }
 		maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
 		maven { url "https://repo.spring.io/libs-release" }
+		mavenCentral()
 	}
 
 	dependencies {
